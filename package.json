@@ -1,0 +1,19 @@
+{
+  "name": "expression-library-comparison",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "expression-eval": "^5.0.0",
+    "expression-parser": "^1.0.0",
+    "expressionparser": "^1.1.5",
+    "logical-expression-parser": "^1.0.0",
+    "safe-evaluate-expression": "^1.7.3",
+    "vm2": "^3.9.11"
+  }
+}
