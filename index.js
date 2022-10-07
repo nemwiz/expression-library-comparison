@@ -1,34 +1,39 @@
 const {VM} = require('vm2');
-const vm = new VM();
-
-const { init, formula , ExpressionParser} = require('expressionparser')
-
-const parser = init(formula, (term) => {
-  if (term === "MY_VARIABLE") {
-    return 42;
-  } else {
-    throw new Error(`Invalid term: ${term}`);
-  }
+const vm = new VM({
+    eval: false,
+    wasm: false,
+    allowAsync: false
 });
 
-// const arithmeticLanguage = {
-//     INFIX_OPS: {
-//         'AND': function () {
-//             return '==='
-//         }
-//     }
-// }
-//
-// const result = new ExpressionParser({...formula(), INFIX_OPS: {'AND': function () {return '==='}}}).expressionToThunk('1 AND 1');
+const {init, formula} = require('expressionparser')
 
-const expression = "(10 > 11 OR 5 < 6) AND MY_VARIABLE >= 20";
-console.log(parser.expressionToValue(expression))
+const parser = init(formula, () => {
+});
 
-const parserList = parser.expressionToRpn(expression)
-console.log(parserList)
+const condition = "(subject.sensitive_to_light OR subject.sensitive_to_sound) AND subject.age >= 18 AND subject.body_temperature <= 37";
 
+const variablesAndValues = {
+    'subject.sensitive_to_light': false,
+    'subject.sensitive_to_sound': true,
+    'subject.age': 25,
+    'subject.body_temperature': 36.7
+}
 
-const replacedExpression = parser.rpnToExpression(parserList).replaceAll('OR', '||').replaceAll('AND', '&&').replaceAll('MY_VARIABLE', '42');
-console.log('replaced', replacedExpression)
-console.log(vm.run(replacedExpression))
-// console.log(vm.run('1 < 2 && 2 > 1'))
+const tokens = parser.tokenize(condition).map(token => {
+    if (token === 'AND') {
+        return '&&';
+    } else if (token === 'OR') {
+        return '||';
+    } else if (token in variablesAndValues) {
+        return variablesAndValues[token];
+    } else {
+        return token;
+    }
+});
+
+const expressionToEvaluate = tokens.join(' ');
+console.log(expressionToEvaluate);
+console.log(vm.run(expressionToEvaluate));
+
+// This throws an error due to sandbox
+// vm.run("eval(2 + 2)");
