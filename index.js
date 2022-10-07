@@ -10,13 +10,14 @@ const {init, formula} = require('expressionparser')
 const parser = init(formula, () => {
 });
 
-const condition = "(subject.sensitive_to_light OR subject.sensitive_to_sound) AND subject.age >= 18 AND subject.body_temperature <= 37";
+const condition = "(subject.sensitive_to_light OR subject.sensitive_to_sound) AND subject.age >= 18 AND subject.body_temperature <= 37 AND subject.name = 'test'";
 
 const variablesAndValues = {
     'subject.sensitive_to_light': false,
     'subject.sensitive_to_sound': true,
     'subject.age': 25,
-    'subject.body_temperature': 36.7
+    'subject.body_temperature': 36.7,
+    'subject.name': 'test'
 }
 
 const tokens = parser.tokenize(condition).map(token => {
@@ -24,8 +25,12 @@ const tokens = parser.tokenize(condition).map(token => {
         return '&&';
     } else if (token === 'OR') {
         return '||';
-    } else if (token in variablesAndValues) {
-        return variablesAndValues[token];
+    } else if (token === '=') {
+        return '===';
+    }
+    else if (token in variablesAndValues) {
+        const value = variablesAndValues[token];
+        return typeof value === 'string' ? `'${value}'` : value;
     } else {
         return token;
     }
